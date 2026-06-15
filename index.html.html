@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Notes — Korean Religious Ephemera Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f2ed;
+    --muted: #888;
+    --rule: #d0ccc5;
+    --accent: #0d0d0d;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--ink);
+    padding: 3rem 4rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: end;
+  }
+
+  .site-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .site-subtitle {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.8;
+  }
+
+  .header-meta {
+    text-align: right;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    line-height: 2;
+  }
+
+  /* FILTERS */
+  .controls {
+    border-bottom: 1px solid var(--rule);
+    padding: 1rem 4rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .controls label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 0.5rem;
+  }
+
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .entry-count {
+    margin-left: auto;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* GRID */
+  .grid {
+    padding: 3rem 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0;
+  }
+
+  .card {
+    border: 1px solid var(--rule);
+    margin: -1px 0 0 -1px;
+    cursor: pointer;
+    transition: z-index 0s, box-shadow 0.2s;
+    position: relative;
+    background: var(--paper);
+  }
+
+  .card:hover {
+    z-index: 2;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .card-image {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(100%);
+    border-bottom: 1px solid var(--rule);
+    background: #e8e4de;
+    overflow: hidden;
+  }
+
+  .placeholder-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #e0dbd3;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .placeholder-img svg {
+    opacity: 0.3;
+  }
+
+  /* Fake "scan" placeholders with Korean text feel */
+  .scan-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #e8e4de;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.8rem;
+    color: #bbb;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border: 1px solid #ccc;
+  }
+
+  .scan-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #bbb;
+    text-align: center;
+    line-height: 2;
+  }
+
+  .card-img-wrap {
+    position: relative;
+  }
+
+  .photo-count-badge {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    background: rgba(13,13,13,0.75);
+    color: var(--paper);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.5rem;
+    line-height: 1.4;
+  }
+
+  .card-body {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+
+  .card-number {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .card-org {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-tag {
+    display: inline-block;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--rule);
+    padding: 0.15rem 0.5rem;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .card-meta {
+    font-size: 0.65rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,13,13,0.85);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 4rem 2rem;
+  }
+
+  .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+  .modal {
+    background: var(--paper);
+    max-width: 860px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    border: 1px solid var(--ink);
+  }
+
+  .modal-image-pane {
+    background: #e0dbd3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    border-right: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .modal-image-pane img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: grayscale(100%);
+    display: block;
+  }
+
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(245,242,237,0.9);
+    border: 1px solid var(--ink);
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--ink);
+    z-index: 1;
+    transition: background 0.15s;
+  }
+
+  .carousel-arrow:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .carousel-arrow.prev { left: 0.75rem; }
+  .carousel-arrow.next { right: 0.75rem; }
+
+  .carousel-dots {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.4rem;
+    z-index: 1;
+  }
+
+  .carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--ink);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .carousel-dot.active {
+    background: var(--ink);
+  }
+
+  .modal-scan-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #bbb;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .modal-content {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--muted);
+    line-height: 1;
+    padding: 0.25rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .modal-close:hover { color: var(--ink); }
+
+  .modal-number {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .modal-org {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-tag {
+    display: inline-block;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--rule);
+    padding: 0.15rem 0.5rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-field {
+    margin-bottom: 1rem;
+  }
+
+  .modal-field-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+
+  .modal-field-value {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  .modal-notes {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .modal-notes .modal-field-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.7;
+    color: #555;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--ink);
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  @media (max-width: 700px) {
+    header, .controls, .grid, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+    header { grid-template-columns: 1fr; }
+    .header-meta { text-align: left; }
+    .modal { grid-template-columns: 1fr; }
+    .modal-image-pane { min-height: 260px; border-right: none; border-bottom: 1px solid var(--rule); }
+    .modal-scan-placeholder { min-height: 260px; }
+    .carousel-arrow { width: 1.75rem; height: 1.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <p class="site-subtitle">Personal Archive &mdash; Field Collection</p>
+    <h1 class="site-title">Korean Religious<br>Ephemera</h1>
+  </div>
+  <div class="header-meta">
+    <p>Collected 2019&ndash;2022</p>
+    <p>Republic of Korea</p>
+    <p>Seoul, Busan, Daegu</p>
+    <p>&mdash;</p>
+    <p>Leaflets, pamphlets, flyers</p>
+    <p>distributed in public spaces</p>
+  </div>
+</header>
+
+<div class="controls">
+  <span>
+    <label>Filter</label>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="christian">Christian</button>
+    <button class="filter-btn" data-filter="buddhist">Buddhist</button>
+    <button class="filter-btn" data-filter="new-religious">New Religious</button>
+    <button class="filter-btn" data-filter="other">Other</button>
+  </span>
+  <span class="entry-count" id="entry-count">7 items</span>
+</div>
+
+<main class="grid" id="grid"></main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div class="modal-image-pane" id="modal-image-pane">
+      <div class="modal-scan-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>
+        <span>scan not available</span>
+      </div>
+    </div>
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      <div class="modal-number" id="modal-number"></div>
+      <div class="modal-org" id="modal-org"></div>
+      <div class="modal-tag" id="modal-tag"></div>
+      <div class="modal-field">
+        <div class="modal-field-label">Acquired</div>
+        <div class="modal-field-value" id="modal-acquired"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-field-label">Location</div>
+        <div class="modal-field-value" id="modal-location"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-field-label">Language(s)</div>
+        <div class="modal-field-value" id="modal-language"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-field-label">Condition</div>
+        <div class="modal-field-value" id="modal-condition"></div>
+      </div>
+      <div class="modal-notes">
+        <div class="modal-field-label">Notes</div>
+        <div class="modal-field-value" id="modal-notes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Field Notes &mdash; Korean Religious Ephemera Archive</span>
+  <span>Personal collection. Not for redistribution.</span>
+</footer>
+
+<script>
+/* =========================================================
+   ARCHIVE DATA
+   ---------------------------------------------------------
+   To add a new item, copy one block { ... } below (including
+   the curly braces) and edit the values.
+
+   - "images" is a LIST of scan filenames for this item.
+     If you have only one scan, still put it inside [ ] like this:
+       images: ["scans/KRE-007-a.jpg"]
+     If you have several (e.g. front and back), list them in order:
+       images: ["scans/KRE-007-a.jpg", "scans/KRE-007-b.jpg"]
+     If you don't have a scan yet, leave it as: images: []
+
+   - "tag" must be one of: christian, buddhist, new-religious, other
+     (this controls which filter button the item appears under)
+   ========================================================= */
+const items = [
+  {
+    id: "KRE-001",
+    org: "Manmin Central Church",
+    tag: "christian",
+    tagLabel: "Protestant",
+    acquired: "March 2019",
+    location: "Gangnam Station exit 7, Seoul",
+    language: "Korean, English",
+    condition: "Good — slight fold on upper right corner",
+    notes: "Handed to me by a young man in a white shirt. He asked where I was from and whether I believed in miracles. The leaflet promises healing through prayer and lists upcoming revival meetings.",
+    images: []
+  },
+  {
+    id: "KRE-002",
+    org: "Shincheonji Church of Jesus",
+    tag: "new-religious",
+    tagLabel: "New Religious",
+    acquired: "June 2019",
+    location: "Hongdae, Seoul — near the main plaza",
+    language: "Korean",
+    condition: "Very good — laminated",
+    notes: "Left on a café table, tucked under a cup. No person present. Glossy, professional printing. Depicts a dove and wheat motifs. No organization name visible on the front — only on the back in small text.",
+    images: []
+  },
+  {
+    id: "KRE-003",
+    org: "Won Buddhism (원불교)",
+    tag: "buddhist",
+    tagLabel: "Buddhist",
+    acquired: "September 2019",
+    location: "Gyeongbokgung Palace area, Seoul",
+    language: "Korean, English, Chinese",
+    condition: "Fair — water stain on lower edge",
+    notes: "Picked up from a street stand near the palace entrance. Multilingual, clearly aimed at tourists. Simple circular symbol on cream paper. The English text describes Won Buddhism as 'the reformation of Buddhism for modern life.'",
+    images: []
+  },
+  {
+    id: "KRE-004",
+    org: "Jehovah's Witnesses Korea",
+    tag: "christian",
+    tagLabel: "Christian",
+    acquired: "January 2020",
+    location: "Busan Station, main concourse",
+    language: "Korean",
+    condition: "Good",
+    notes: "Two older women in matching beige coats were distributing these silently outside the station. They did not speak, only held out the leaflet. Standard Watchtower publication — recognizable layout, serif typeface, pastoral illustration on cover.",
+    images: []
+  },
+  {
+    id: "KRE-005",
+    org: "Unknown — 'Truth Ministry'",
+    tag: "other",
+    tagLabel: "Unidentified",
+    acquired: "April 2020",
+    location: "Daegu — Dongseong-ro pedestrian street",
+    language: "Korean",
+    condition: "Poor — torn, heavily annotated by previous recipient",
+    notes: "Found on the ground, already marked up with pen by someone who had received it before me. The annotations appear to be rebuttals or corrections written in a different hand. Organization name partially obscured — only '진리 사역' visible. Could not find further information.",
+    images: []
+  },
+  {
+    id: "KRE-006",
+    org: "Cheondogyo (천도교)",
+    tag: "new-religious",
+    tagLabel: "New Religious",
+    acquired: "August 2020",
+    location: "Insadong, Seoul",
+    language: "Korean",
+    condition: "Excellent — mint condition",
+    notes: "Received at a small cultural exhibition on Korean indigenous religions. Cheondogyo emerged from the 19th-century Donghak movement. This leaflet outlines its core tenets: 'innaecheon' (人乃天) — humanity is heaven. Printed on recycled paper with a subtle earth-tone palette.",
+    images: []
+  },
+  {
+    id: "KRE-007",
+    org: "World Mission Society Church of God (하나님의교회 세계복음선교협회)",
+    tag: "christian",
+    tagLabel: "New Religious — Christian-derived",
+    acquired: "Autumn 2024",
+    location: "Seoul — bus stop near a crossroads, on the side with the Olive Young store, an area with few restaurants",
+    language: "Korean",
+    condition: "Good — small postcard-style leaflet",
+    notes: "Part of a numbered series ('Postcards of happiness', no. 13). I'm not sure if it was handed to me directly or just placed nearby — someone seemed to want to talk, but I wasn't sure. Front: 'Have you heard of Heavenly Mother?' over a sky-and-clouds image. Back: a short scripture-based argument identifying the 'Heavenly Jerusalem' (Revelation 21, Galatians 4:26) as 'our Mother', with the watv.org website and hashtags.",
+    images: ["scans/KRE-007-a.jpg", "scans/KRE-007-b.jpg"]
+  }
+];
+
+/* current item open in the modal, and which photo index is showing */
+let activeItem = null;
+let activeImageIndex = 0;
+
+function renderGrid(filter) {
+  const grid = document.getElementById('grid');
+  const filtered = filter === 'all' ? items : items.filter(i => i.tag === filter);
+  document.getElementById('entry-count').textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '');
+
+  grid.innerHTML = '';
+  filtered.forEach((item) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.id = item.id;
+
+    const hasImages = item.images && item.images.length > 0;
+    const imageBlock = hasImages
+      ? `<div class="card-img-wrap">
+           <img class="card-image" src="${item.images[0]}" alt="Scan of ${item.org}">
+           ${item.images.length > 1 ? `<span class="photo-count-badge">1/${item.images.length}</span>` : ''}
+         </div>`
+      : `<div class="scan-placeholder">
+           <div class="scan-label">${item.id}<br>scan pending</div>
+         </div>`;
+
+    card.innerHTML = `
+      ${imageBlock}
+      <div class="card-body">
+        <div class="card-number">${item.id}</div>
+        <div class="card-org">${item.org}</div>
+        <span class="card-tag">${item.tagLabel}</span>
+        <div class="card-meta">
+          <div>${item.acquired}</div>
+          <div>${item.location.split('—')[0].trim()}</div>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => openModal(item));
+    grid.appendChild(card);
+  });
+}
+
+function openModal(item) {
+  activeItem = item;
+  activeImageIndex = 0;
+
+  document.getElementById('modal-number').textContent = item.id + ' / ' + item.tagLabel.toUpperCase();
+  document.getElementById('modal-org').textContent = item.org;
+  document.getElementById('modal-tag').textContent = item.tagLabel;
+  document.getElementById('modal-acquired').textContent = item.acquired;
+  document.getElementById('modal-location').textContent = item.location;
+  document.getElementById('modal-language').textContent = item.language;
+  document.getElementById('modal-condition').textContent = item.condition;
+  document.getElementById('modal-notes').textContent = item.notes;
+
+  renderModalImage();
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderModalImage() {
+  const pane = document.getElementById('modal-image-pane');
+  const item = activeItem;
+  const hasImages = item.images && item.images.length > 0;
+
+  if (!hasImages) {
+    pane.innerHTML = `<div class="modal-scan-placeholder">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>
+      <span>${item.id}</span>
+      <span>scan not available</span>
+    </div>`;
+    return;
+  }
+
+  const total = item.images.length;
+  const src = item.images[activeImageIndex];
+  let html = `<img src="${src}" alt="Scan ${activeImageIndex + 1} of ${total} for ${item.org}">`;
+
+  if (total > 1) {
+    html += `<button class="carousel-arrow prev" id="carousel-prev" aria-label="Previous image">&larr;</button>`;
+    html += `<button class="carousel-arrow next" id="carousel-next" aria-label="Next image">&rarr;</button>`;
+    html += `<div class="carousel-dots">`;
+    for (let i = 0; i < total; i++) {
+      html += `<button class="carousel-dot${i === activeImageIndex ? ' active' : ''}" data-index="${i}" aria-label="Show image ${i + 1}"></button>`;
+    }
+    html += `</div>`;
+  }
+
+  pane.innerHTML = html;
+
+  if (total > 1) {
+    document.getElementById('carousel-prev').addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeImageIndex = (activeImageIndex - 1 + total) % total;
+      renderModalImage();
+    });
+    document.getElementById('carousel-next').addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeImageIndex = (activeImageIndex + 1) % total;
+      renderModalImage();
+    });
+    pane.querySelectorAll('.carousel-dot').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeImageIndex = parseInt(dot.dataset.index, 10);
+        renderModalImage();
+      });
+    });
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  activeItem = null;
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('modal-overlay').classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (!activeItem || !activeItem.images || activeItem.images.length < 2) return;
+  const total = activeItem.images.length;
+  if (e.key === 'ArrowLeft') { activeImageIndex = (activeImageIndex - 1 + total) % total; renderModalImage(); }
+  if (e.key === 'ArrowRight') { activeImageIndex = (activeImageIndex + 1) % total; renderModalImage(); }
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid(btn.dataset.filter);
+  });
+});
+
+renderGrid('all');
+</script>
+</body>
+</html>
